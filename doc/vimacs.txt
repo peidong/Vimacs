@@ -298,7 +298,7 @@ simply copy it to $HOME/bin/vim.
 	esac
 	
 	case "$argv0" in
-	  # This case has to come before vim
+	  # This case has to come before *vim*, since *vim* will match *vimacs*
 	  *vm*|*vimacs*)
 	    exec $VIM_CMD --cmd "let g:VM_Enabled = 1" \
 			  --cmd "set insertmode" \
@@ -427,29 +427,6 @@ Windows; see |.vimrc| for more information).  You can set variables using
 	for Unix terminals which send a Meta key as an Escape sequence, rather
 	than sending the keypress with the 8th bit on.  Most Unix terminals
 	seem to do that these days.
-
-						*'g:VM_Wrap'*
-
-'g:VM_Wrap'	number	(default 2)
-
-	Allow wrapping when the cursor moves. By default all keys are allowed
-	in all modes. Set its value to 1 to allow wrapping only in
-	insert/replace mode, or 0 to retain the vim |'whichwrap'| option.
-
-						*'g:VM_WrapHL'*
-
-'g:VM_WrapHL'	number	(default 1)
-
-	Allow h/l keys to wrap in normal/visual mode. Since it's not
-	recommended in vim, it can be turned off separately. When
-	|'g:VM_Wrap'| is not 2, this option has no effect.
-
-						*'g:VM_Hidden'*
-
-'g:VM_Hidden'	number	(default 1)
-
-	Hide the buffer when editing a new file. This option affects the
-	|'hidden'| option and the bindings of <C-x><C-f> keys etc.
 
 						*vimacs-vim-options*
 
@@ -799,36 +776,6 @@ See the |'vimacs-cedit'| topic in the option summary for details.
 *Vimacs.09*  Revision History (ChangeLog)
 
 						*vimacs-changelog*
-
-						*vimacs-0.96*
-
-Added "set nocp" note to INSTALL_unix file
-
-Fixed some mark commands (e.g. <M-Space>) so that don't splurge out confusing
-messages to the screen
-
-						*vimacs-0.95*
-
-Fixed up 'duplicate tag "vimacs" in file vimacs.txt' when running helptags;
-merci dopey!
-
-BTW, Vimacs is now available in Debian, thanks to dopey!  apt-get install
-vimacs to annoy everybody else using vim on your computer
-
-						*vimacs-0.94*
-
-Searching the last searched text with <C-s><C-s> or <C-r><C-r> now works a bit
-better (although I'm still not 100% satisfied with it)
-
-Fixed <M-<> not working
-
-<C-Ins> in Visual mode now copies to the clipboard (PRIMARY selection in X)
-
-<S-Del> in Visual mode now cuts to the clipboard (PRIMARY selection in X)
-
-Fixed "trailing characters" error message when doing <M-%> (:QueryReplace)
-
-Fixed QueryReplaceRegexp
 
 						*vimacs-0.93*
 
