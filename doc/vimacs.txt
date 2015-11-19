@@ -577,6 +577,8 @@ Nothing written yet.  Send patches or hate mail to the |vimacs-author| :).
 
 Nothing written yet.  Send patches or hate mail to the |vimacs-author| :).
 
+In Insert mode, <C-T> will not work.
+
 
 ==============================================================================
 *Vimacs.06*  Key Map
