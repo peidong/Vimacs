@@ -1,5 +1,5 @@
 """
-"" Vimacs (0.96)
+"" Vimacs (0.93)
 "
 " Vim-Improved eMACS
 "
@@ -45,23 +45,11 @@
 
 " Have <unique> for all maps?
 
-" Load Vimacs?
+
+" Never load Vimacs if user wants true Vi!  (We're not _that_ evil 8)
 if v:progname =~ '^vi$'
-  " Never load Vimacs if user wants true Vi!  (We're not _that_ evil 8)
-  if !exists("g:VM_Enabled")
-    let g:VM_Enabled = 0
-  endif
-  finish
-elseif v:progname =~ 'vimacs'
-  let g:VM_Enabled = 1
-elseif v:progname =~ 'vemacs' || v:progname == 'vm'
-  let g:VM_Enabled = 1
-  set insertmode
-elseif !exists("g:VM_Enabled") || g:VM_Enabled == 0
-  " A vim user should explicitly enable Vimacs
   finish
 endif
-
 
 if version < 600
   " We require Vim 6 to work :(
@@ -89,11 +77,13 @@ endfunction
 
 command! -nargs=+ LetDefault call s:LetDefault(<f-args>)
 
+" Load Vimacs by default
+LetDefault g:VM_Enabled 1
 
 " Developers may want to turn this on, to always load the file
 LetDefault g:VM_Dev 0
 
-if (exists("loaded_vimacs") && g:VM_Dev == 0) || &cp
+if g:VM_Enabled == 0 || (exists("loaded_vimacs") && g:VM_Dev == 0) || &cp
   finish
 endif
 
@@ -120,21 +110,6 @@ endfun
 
 
 "
-" set virtualedit=all (or onemore in Vim 7) is necessary
-" for consistent word movement
-"
-
-function! <SID>SetVirtualedit()
-  let s:saved_virtualedit = &virtualedit
-  set virtualedit=all
-endfunction
-
-function! <SID>RestoreVirtualedit()
-  let &virtualedit = s:saved_virtualedit
-endfunction
-
-
-"
 " It's a good idea to have a command height of at least 2 if showmode is on,
 " because many important messages will be overwritten by the mode display.
 " e.g. <C-x><C-s>, which saves the file, will display that the file has been
@@ -157,22 +132,9 @@ endif
 " Turn off <Alt>/<Meta> pulling down GUI menu
 set winaltkeys=no
 " Emacs normally wraps everything
-LetDefault g:VM_Wrap 2
-LetDefault g:VM_WrapHL 1
-if g:VM_Wrap==2
-  set whichwrap=b,s,<,>,[,],~
-  if g:VM_WrapHL
-    set whichwrap+=h,l
-  endif
-elseif g:VM_Wrap==1
-  set whichwrap+=[,]
-endif
+set whichwrap=b,s,<,>,h,l,[,],~
 " Emacs always has 'hidden buffers'
-" The 'g:VM_Hidden option' also affects bindings of <C-x><C-f> etc
-LetDefault g:VM_Hidden 1
-if g:VM_Hidden
-  set hidden
-endif
+set hidden
 " Backspace in Emacs normally backspaces anything :)
 set backspace=indent,eol,start
 " Want to be able to use <Tab> within our mappings
@@ -194,79 +156,62 @@ LetDefault g:VM_SingleEscToNormal 1
 
 if has("unix") && !has("gui_running") && g:VM_UnixConsoleMetaSendsEsc
   " <Esc>x maps to <M-x>
-  "let charCode = 65
-  "while charCode <= 122
-  "  exec "set <Char-" . charCode . ">=\<Esc>" . nr2char(charCode)
-  "  let charCode = charCode + 1
-  "endwhile
-  "unlet charCode
- set <M-1>=1
- set <M-2>=2
- set <M-3>=3
- set <M-4>=4
- set <M-5>=5
- set <M-6>=6
- set <M-7>=7
- set <M-8>=8
- set <M-9>=9
- set <M-0>=0
- set <M-a>=a
- set <M-b>=b
- set <M-c>=c
- set <M-d>=d
- set <M-e>=e
- set <M-f>=f
- set <M-g>=g
- set <M-h>=h
- set <M-i>=i
- set <M-j>=j
- set <M-k>=k
- set <M-l>=l
- set <M-m>=m
- set <M-n>=n
- set <M-o>=o
- set <M-p>=p
- set <M-q>=q
- set <M-r>=r
- set <M-s>=s
- set <M-t>=t
- set <M-u>=u
- set <M-v>=v
- set <M-w>=w
- set <M-x>=x
- set <M-y>=y
- set <M-z>=z
- set <M->=
- set <M-/>=/
- " Doing "set <M->>=^[>" throws up an error, so we be dodgey and use Char-190
- " instead, which is ASCII 62 ('>' + 128).
- set <Char-190>=>
- " Probably don't need both of these ;)
- set <Char-188>=<
- set <M-<>=<
- set <M-0>=0
+  set <M-1>=1
+  set <M-2>=2
+  set <M-3>=3
+  set <M-4>=4
+  set <M-5>=5
+  set <M-6>=6
+  set <M-7>=7
+  set <M-8>=8
+  set <M-9>=9
+  set <M-0>=0
+  set <M-a>=a
+  set <M-b>=b
+  set <M-c>=c
+  set <M-d>=d
+  set <M-e>=e
+  set <M-f>=f
+  set <M-g>=g
+  set <M-h>=h
+  set <M-i>=i
+  set <M-j>=j
+  set <M-k>=k
+  set <M-l>=l
+  set <M-m>=m
+  set <M-n>=n
+  set <M-o>=o
+  set <M-p>=p
+  set <M-q>=q
+  set <M-r>=r
+  set <M-s>=s
+  set <M-t>=t
+  set <M-u>=u
+  set <M-v>=v
+  set <M-w>=w
+  set <M-x>=x
+  set <M-y>=y
+  set <M-z>=z
+  set <M->=
+  set <M-/>=/
+  " Doing "set <M->>=^[>" throws up an error, so we be dodgey and use Char-190
+  " instead, which is ASCII 62 ('>' + 128).
+  set <Char-190>=>
+  set <M-<>=<
+  set <M-0>=0
+  set <M-%>=%
+  set <M-*>=*
+  set <M-.>=.
+  set <M-^>=^
+  " Can't set <M-Space> right now :(
+  set <M-Space>=^[<Space>
 
- set <M-%>=%
- set <M-*>=*
- set <M-.>=.
- set <M-^>=^
- " Can't set <M-Space> right now :(
- "set <M-Space>=<Space>
-" 
 endif
 
 
 "
 " One or two <Esc>s to get back to Normal mode?
 "
-
-function! <SID>NormalModeKey()
-  if &insertmode
-    return "\<C-l>"
-  else
-    return "\<Esc>"
-  endif
-endfunction
 
 " on CmdwinLeave?
 if g:VM_SingleEscToNormal == 1
@@ -282,14 +227,8 @@ if g:VM_SingleEscToNormal == 1
   set ttimeout
   set timeoutlen=50
 else
-  inoremap <Esc><Esc> <C-r>=<SID>NormalModeKey()<CR>
+  inoremap <Esc><Esc> <C-l>
   vnoremap <Esc><Esc> <Esc>
-  " for some reason, double <Esc> in Select mode wasn't working
-  " until I added a second explicit select-mode map...?
-  if version >= 700
-    snoremap <Esc><Esc> <Esc>
-  endif
-  nnoremap <Esc><Esc> <Esc>
   set notimeout
   set nottimeout
 endif
@@ -303,10 +242,10 @@ command! UseF1ForNormal echoerr "Use F1 or <C-z> to return to Normal mode.  :hel
 
 inoremap <M-x> <C-o>:
 inoremap <M-:> <C-o>:
-inoremap <F1> <C-r>=<SID>NormalModeKey()<CR>
+inoremap <F1> <C-l>
 inoremap <F2> <C-o>
 inoremap <M-`> <C-o>
-inoremap <silent> <C-z> <C-r>=<SID>NormalModeKey()<CR>:echo "Returning to Normal mode; press <C-z> again to suspend Vimacs"<CR>
+inoremap <silent> <C-z> <C-l>:echo "Returning to Normal mode; press <C-z> again to suspend Vimacs"<CR>
 nnoremap <C-z> :call <SID>Suspend()<CR>
 " M-` isn't defined in Emacs
 
@@ -345,22 +284,14 @@ inoremap <C-x><C-c> <C-o>:confirm qall<CR>
 " Files & Buffers
 "
 
-if g:VM_Hidden
-  inoremap <C-x><C-f> <C-o>:hide edit<Space>
-else
-  inoremap <C-x><C-f> <C-o>:edit<Space>
-endif
+inoremap <C-x><C-f> <C-o>:hide edit<Space>
 inoremap <C-x><C-s> <C-o>:update<CR>
 inoremap <C-x>s <C-o>:wall<CR>
 inoremap <C-x>i <C-o>:read<Space>
 "what does C-x C-v do?
 inoremap <C-x><C-w> <C-o>:write<Space>
 inoremap <C-x><C-q> <C-o>:set invreadonly<CR>
-if g:VM_Hidden
-  inoremap <C-x><C-r> <C-o>:hide view<Space>
-else
-  inoremap <C-x><C-r> <C-o>:view<Space>
-endif
+inoremap <C-x><C-r> <C-o>:hide view<Space>
 
 
 "
@@ -391,12 +322,12 @@ inoremap <M-p> <C-o>:cprevious<CR>
 inoremap <C-M-s> <C-o>:call <SID>StartSearch('/')<CR><C-o>/
 inoremap <C-M-r> <C-o>:call <SID>StartSearch('?')<CR><C-o>?
 inoremap <M-s> <C-o>:set invhls<CR>
-inoremap <M-%> <C-o>:call <SID>QueryReplace()<CR>
-inoremap <C-M-%> <C-o>:call <SID>QueryReplaceRegexp()<CR>
+inoremap <M-%> <C-o>:call <SID>QueryReplace()()<CR>
+inoremap <C-M-%> <C-o>:call <SID>QueryReplace()_regexp()<CR>
 cnoremap <C-r> <CR><C-o>?<Up>
 
-command! QueryReplace :call <SID>QueryReplace()<CR>
-command! QueryReplaceRegexp :call <SID>QueryReplaceRegexp()<CR>
+command! QueryReplace :call <SID>QueryReplace()()
+command! QueryReplaceRegexp :call <SID>QueryReplace()_regexp()
 
 " Searching is a bit tricky because we have to emulate Emacs's behaviour of
 " searching again when <C-s> or <C-r> is pressed _inside_ the search
@@ -416,13 +347,10 @@ LetDefault g:VM_SearchRepeatHighlight 0
 function! <SID>StartSearch(search_dir)
   let s:incsearch_status = &incsearch
   let s:lazyredraw_status = &lazyredraw
-  let s:hit_boundary = 0
-  set nowrapscan
   set incsearch
-  set lazyredraw
   cmap <C-c> <CR>
-  cnoremap <C-s> <C-c><C-o>:call <SID>SearchAgain()<CR><C-o>/<Up>
-  cnoremap <C-r> <C-c><C-o>:call <SID>SearchAgain()<CR><C-o>?<Up>
+  cnoremap <C-s> <CR><C-o>:call <SID>SearchAgain()<CR><C-o>/<Up>
+  cnoremap <C-r> <CR><C-o>:call <SID>SearchAgain()<CR><C-o>?<Up>
   cnoremap <silent> <CR> <CR><C-o>:call <SID>StopSearch()<CR>
   cnoremap <silent> <C-g> <C-c><C-o>:call <SID>AbortSearch()<CR>
   cnoremap <silent> <Esc> <C-c><C-o>:call <SID>AbortSearch()<CR>
@@ -462,38 +390,12 @@ function! <SID>AbortSearch()
 endfunction
 
 function! <SID>SearchAgain()
-  
-  "if (winline() <= 2)
-  "  normal zb
-  "elseif (( winheight(0) - winline() ) <= 2)
-  "  normal zt
-  "endif
-
-  let current_pos = <SID>Mark()
-  if search(@/, 'W') == 0
-    " FIXME
-    set wrapscan
-    if s:hit_boundary == 1
-      let s:hit_boundary = 2
-    endif
-    let s:hit_boundary = 1
-  else
-    if s:hit_boundary == 2
-      let s:hit_boundary = 0
-    endif
-    execute current_pos
-  endif
-  
-  cnoremap <C-s> <CR><C-o>:call <SID>SearchAgain()<CR><C-o>/<Up>
-  cnoremap <C-r> <CR><C-o>:call <SID>SearchAgain()<CR><C-o>?<Up>
-  
   if g:VM_SearchRepeatHighlight == 1
     if !exists("s:hls_status")
       let s:hls_status = &hls
     endif
     set hls
   endif
-
 endfunction
 
 " Emacs' `query-replace' functions
@@ -553,128 +455,6 @@ cnoremap <C-k> <C-f>d$<C-c><End>
 " Navigation
 "
 
-function! <SID>ForwardWord()
-  if col('.')>1 || line('.')>1
-    return "normal! hel"
-  else
-    return "normal! el"
-  endif
-endfunction
-
-inoremap <silent> <SID>ForwardWord <C-o>:call <SID>SetVirtualedit()<CR>
-  \<C-o>:execute <SID>ForwardWord()<CR>
-  \<C-o>:call <SID>RestoreVirtualedit()<CR>
-
-onoremap <silent> <SID>OForwardWord :call <SID>SetVirtualedit()<Bar>
-  \execute <SID>ForwardWord()<Bar>
-  \call <SID>RestoreVirtualedit()<CR>
-
-" Weird.  In Vim 7, if insertmode is on, if you exit visual mode in a mapping,
-" things get weird unless you do some normal command, even a no-op
-nmap <SID>Nop <Nop>
-function! <SID>ExitVisual()
-  if ! &insertmode
-    startinsert
-  else
-    normal! <SID>Nop
-  endif
-endfunction
-
-function <SID>VForwardWord1()
-  if col('.')>=col('$')
-    let s:vforward_fix = 1
-  else
-    let s:vforward_fix = 0
-  endif
-endfunction
-
-function <SID>VForwardWord2()
-  if s:vforward_fix
-    return "\<C-o>gv``\<Right>"
-  else
-    return "\<C-o>gv``"
-  endif
-endfunction
-
-function <SID>AdjustVisualModeExitPosition(backwards)
-  if line('.')==line("'>") && col('.')+1 == col("'>")
-    if !a:backwards || line('.')!=line("'<") || col('.') != col("'<")
-      return "\<Right>"
-    endif
-  elseif line('.')==line("'<") && col('.')+1 == col("'<")
-    return "\<Right>"
-  endif
-  return ""
-endfunction
-
-if version >= 700
-  vnoremap <silent> <SID>VForwardWord <C-c>
-    \:call <SID>ExitVisual()<CR>
-    \<C-r>=<SID>AdjustVisualModeExitPosition(0)<CR>
-    \<C-o>:call <SID>SetVirtualedit()<CR>
-    \<C-o>:execute <SID>ForwardWord()<CR>
-    \<C-o>:call <SID>VForwardWord1()<CR>
-    \<C-o>m`
-    \<C-o>:call <SID>RestoreVirtualedit()<CR>
-    \<C-r>=<SID>VForwardWord2()<CR>
-else
-  vnoremap <silent> <SID>VForwardWord <C-c>
-    \i
-    \<C-r>=<SID>AdjustVisualModeExitPosition(0)<CR>
-    \<C-o>:call <SID>SetVirtualedit()<CR>
-    \<C-o>:execute <SID>ForwardWord()<CR>
-    \<C-o>:call <SID>VForwardWord1()<CR>
-    \<C-o>m`
-    \<C-o>:call <SID>RestoreVirtualedit()<CR>
-    \<C-r>=<SID>VForwardWord2()<CR>
-endif
-
-function! <SID>BackwardWord()
-  let l:line = line('.')
-  let l:getline = getline(l:line)
-  if col('.')==1 || strpart(l:getline,0,col('.')-1) =~ '^\s*$'
-    let l:count = l:line-1 - prevnonblank(l:line-1)
-    if l:count > 0
-      return "normal! " . l:count . "kb"
-    endif
-  endif
-  if col('.')>=col('$') && line('.')<line('$')
-    return "normal! lb"
-  else
-    return "normal! b"
-  endif
-endfunction
-
-inoremap <silent> <SID>BackwardWord <C-o>:call <SID>SetVirtualedit()<CR>
-  \<C-o>:execute <SID>BackwardWord()<CR>
-  \<C-o>:call <SID>RestoreVirtualedit()<CR>
-
-onoremap <silent> <SID>OBackwardWord :call <SID>SetVirtualedit()<Bar>
-  \execute <SID>BackwardWord()<Bar>
-  \call <SID>RestoreVirtualedit()<CR>
-
-if version >= 700
-  vnoremap <silent> <SID>VBackwardWord <C-c>
-    \:call <SID>ExitVisual()<CR>
-    \<C-r>=<SID>AdjustVisualModeExitPosition(1)<CR>
-    \<C-o>:call <SID>SetVirtualedit()<CR>
-    \<C-o>:execute <SID>BackwardWord()<CR>
-    \<C-o>m`
-    \<C-o>:call <SID>RestoreVirtualedit()<CR>
-    \<C-o>gv
-    \``
-else
-  vnoremap <silent> <SID>VBackwardWord <C-c>
-    \i
-    \<C-r>=<SID>AdjustVisualModeExitPosition(1)<CR>
-    \<C-o>:call <SID>SetVirtualedit()<CR>
-    \<C-o>:execute <SID>BackwardWord()<CR>
-    \<C-o>m`
-    \<C-o>:call <SID>RestoreVirtualedit()<CR>
-    \<C-o>gv
-    \``
-endif
-
 " Insert/Visual/Operator mode maps
 imap <C-b> <Left>
 vmap <C-b> <Left>
@@ -688,12 +468,12 @@ omap <C-p> <Up>
 imap <C-n> <Down>
 vmap <C-n> <Down>
 omap <C-n> <Down>
-inoremap <script> <M-f> <SID>ForwardWord
-vnoremap <script> <M-f> <SID>VForwardWord
-onoremap <script> <M-f> <SID>OForwardWord
-inoremap <script> <M-b> <SID>BackwardWord
-vnoremap <script> <M-b> <SID>VBackwardWord
-onoremap <script> <M-b> <SID>OBackwardWord
+inoremap <M-f> <C-o>e<Right>
+vnoremap <M-f> e<Right>
+onoremap <M-f> e<Right>
+inoremap <M-b> <C-Left>
+vnoremap <M-b> <C-Left>
+onoremap <M-b> <C-Left>
 imap <C-a> <Home>
 vmap <C-a> <Home>
 omap <C-a> <Home>
@@ -730,23 +510,14 @@ onoremap <C-x>= <C-g>
 inoremap <silent> <M-g> <C-o>:call <SID>GotoLine()<CR>
 vnoremap <silent> <M-g> :<C-u>call <SID>GotoLine()<CR>
 onoremap <silent> <M-g> :call <SID>GotoLine()<CR>
-inoremap <silent> <C-x>g <C-o>:call <SID>GotoLine()<CR>
-vnoremap <silent> <C-x>g :<C-u>call <SID>GotoLine()<CR>
-onoremap <silent> <C-x>g :call <SID>GotoLine()<CR>
 " Phear, <M-g> works properly even in Visual/Operator-Pending
 " modes :)  (It's rather dangerous with the latter, though ...)
-inoremap <script> <M-Left> <SID>BackwardWord
-vnoremap <script> <M-Left> <SID>VBackwardWord
-onoremap <script> <M-Left> <SID>OBackwardWord
-inoremap <script> <M-Right> <SID>ForwardWord
-vnoremap <script> <M-Right> <SID>VForwardWord
-onoremap <script> <M-Right> <SID>OForwardWord
-inoremap <script> <C-Left> <SID>BackwardWord
-vnoremap <script> <C-Left> <SID>VBackwardWord
-onoremap <script> <C-Left> <SID>OBackwardWord
-inoremap <script> <C-Right> <SID>ForwardWord
-vnoremap <script> <C-Right> <SID>VForwardWord
-onoremap <script> <C-Right> <SID>OForwardWord
+inoremap <M-Left> <S-Left>
+vnoremap <M-Left> <S-Left>
+onoremap <M-Left> <S-Left>
+inoremap <M-Right> <S-Right>
+vnoremap <M-Right> <S-Right>
+onoremap <M-Right> <S-Right>
 inoremap <C-Up> <C-o>{
 vnoremap <C-Up> {
 onoremap <C-Up> {
@@ -776,6 +547,7 @@ command! GotoLine :call <SID>GotoLine()
 " General Editing
 "
 
+inoremap <C-c> <Space><Left>
 inoremap <C-u> <C-o>d0
 inoremap <C-q> <C-v>
 inoremap <C-^> <C-y>
@@ -791,246 +563,36 @@ onoremap <C-g> <C-c>
 "
 
 inoremap <C-d> <Del>
-
-inoremap <silent> <M-d> <C-o>:call <SID>StartKill(0)<CR>
-  \<C-o>:call <SID>SetVirtualedit()<CR>
-  \<C-r>=<SID>ForwardKillWord1()<CR>
-  \<Space><C-o>h
-  \<C-o>"zdve
-  \<C-o>:call setreg('z','','ac')<CR>
-  \<C-o>"Zx
-  \<C-o>:let @z = strpart(@z,1)<CR>
-  \<C-r>=<SID>ForwardKillWord2()<CR>
-  \<C-o>:call <SID>RestoreVirtualedit()<CR>
-  \<C-o>:call <SID>CompleteKill()<CR>
-
-function! <SID>ForwardKillWord1()
-  if col('.')>=col('$') && line('.') < line('$')
-    let s:kill_at_eol = 1
-    return "\<Down>\<C-o>0"
-  else
-    let s:kill_at_eol = 0
-    return ""
-  endif
-endfunction
-
-function! <SID>ForwardKillWord2()
-  if s:kill_at_eol
-    let @z = "\n" . @z
-    return "\<BS>"
-  else
-    return ""
-  endif
-endfunction
-
-inoremap <silent> <SID>BackwardKillWord <C-o>:call <SID>StartKill(1)<CR>
-  \<C-o>:call <SID>SetVirtualedit()<CR>
-  \<C-r>=<SID>BackwardKillWord1()<CR>
-  \<C-r>=<SID>BackwardKillWord2()<CR>
-  \<C-r>=<SID>BackwardKillWord3()<CR>
-  \<C-o>"wdb
-  \<C-o>:call <SID>BackwardKillWord4()<CR>
-  \<C-o>:call <SID>RestoreVirtualedit()<CR>
-  \<C-o>:call <SID>CompleteKill()<CR>
-inoremap <silent> <script> <M-> <SID>BackwardKillWord
-inoremap <silent> <script> <M-BS> <SID>BackwardKillWord
-inoremap <silent> <script> <C-BS> <SID>BackwardKillWord
-
-" A single <C-r>= which does two <C-o> commands doesn't work... why?
-function! <SID>BackwardKillWord1()
-  let s:saved_w = @w
-  let s:saved_x = @x
-  let s:saved_y = @y
-  let @w = ""
-  let @x = ""
-  let @y = ""
-  let s:line = line('.')
-  let l:getline = getline(s:line)
-  if strpart(l:getline,0,col('.')-1) =~ '^\s*$'
-    return "\<C-o>\"zd0"
-  else
-    return ""
-  endif
-endfunction
-
-function! <SID>BackwardKillWord2()
-  if col('.') == 1
-    let l:count = s:line-1 - prevnonblank(s:line-1)
-    if l:count > 0
-      return "\<C-o>\"ydv" . l:count . "k"
-    else
-      return ""
-    endif
-  else
-    return ""
-  endif
-endfunction
-
-function! <SID>BackwardKillWord3()
-  if col('.') == 1 && line('.') > 1
-    let @x = "\n"
-    return "\<BS>"
-  else
-    return ""
-  endif
-endfunction
-
-function! <SID>BackwardKillWord4()
-  let @z = @w . @x . @y . @z
-  let @w = s:saved_w
-  let @x = s:saved_x
-  let @y = s:saved_y
-endfunction
-
-inoremap <silent> <C-k> <C-o>:call <SID>StartKill(0)<CR>
-  \<C-r>=<SID>KillLine()<CR>
-  \<C-o>:call <SID>CompleteKill()<CR>
+inoremap <silent> <M-d> <C-r>=<SID>KillWord()<CR>
+inoremap <M-> <C-w>
+inoremap <M-BS> <C-w>
+inoremap <C-BS> <C-w>
+inoremap <silent> <C-k> <C-r>=<SID>KillLine()<CR>
 " Thanks to Benji Fisher for helping me with getting <C-k> to work!
-
-function! <SID>KillLine()
-  if col('.') >= col('$')
-    " At EOL; join with next line
-    if line('.') < line('$')
-      let @z = "\n"
-      return "\<Del>"
-    else
-      let @z = ""
-      return ""
-    endif
-  else
-    " Not at EOL; kill until end of line
-    return "\<C-o>\"zd$"
-  endif
-endfunction
-
-inoremap <silent> <M-0><C-k> <C-o>:call <SID>StartKill(1)<CR>
-  \<C-o>"zd0
-  \<C-o>:call <SID>CompleteKill()<CR>
-
-" In Vim, unlike Emacs, an empty line, but NOT a blank line, ends a sentence.
-" Not worth fixing.
-inoremap <silent> <M-k> <C-o>:call <SID>StartKill(0)<CR>
-  \<C-o>"zd)
-  \<C-o>:call <SID>CompleteKill()<CR>
-inoremap <silent> <C-x><BS> <C-o>:call <SID>StartKill(1)<CR>
-  \<C-o>"zd(
-  \<C-o>:call <SID>CompleteKill()<CR>
-inoremap <silent> <M-z> <C-o>:call <SID>StartKill(0)<CR>
-  \<C-o>"zdt
-  \<C-o>:call <SID>CompleteKill()<CR>
-
+inoremap <M-0><C-k> <C-o>d0
+inoremap <M-k> <C-o>d)
+inoremap <C-x><BS> <C-o>d(
+inoremap <M-z> <C-o>dt
 inoremap <M-\> <Esc>beldwi
 
-function! <SID>StartKill(backwards)
-  let s:backwards = a:backwards
-  let s:saved_z = @z
-  let @z = ""
-  if (version < 700 || s:kill_command == "kel" || s:kill_command == "keml") && b:changedtick == s:saved_changedtick && <SID>GetPos() == s:saved_pos
-    let s:kill_continue = 1
-    let s:killed = @@
+function! <SID>KillWord()
+  if col('.') > strlen(getline('.'))
+    return "\<Del>\<C-o>dw"
   else
-    let s:kill_continue = 0
-    let s:killed = ""
+    return "\<C-o>dw"
   endif
-  let s:r9 = @9
-  let s:r8 = @8
-  let s:r7 = @7
-  let s:r6 = @6
-  let s:r5 = @5
-  let s:r4 = @4
-  let s:r3 = @3
-  let s:r2 = @2
-  let s:r1 = @1
 endfunction
 
-function! <SID>CompleteKill()
-  " Make the kill ring make sense.
-  " Registers must be characterwise.
-  if s:kill_continue == 0
-    call setreg('9',s:r8,'c')
-    call setreg('8',s:r7,'c')
-    call setreg('7',s:r6,'c')
-    call setreg('6',s:r5,'c')
-    call setreg('5',s:r4,'c')
-    call setreg('4',s:r3,'c')
-    call setreg('3',s:r2,'c')
-    call setreg('2',s:r1,'c')
+function! <SID>KillLine()
+  if col('.') > strlen(getline('.'))
+    " At EOL; join with next line
+    return "\<Del>"
   else
-    call setreg('9',s:r9,'c')
-    call setreg('8',s:r8,'c')
-    call setreg('7',s:r7,'c')
-    call setreg('6',s:r6,'c')
-    call setreg('5',s:r5,'c')
-    call setreg('4',s:r4,'c')
-    call setreg('3',s:r3,'c')
-    call setreg('2',s:r2,'c')
+    " Not at EOL; kill until end of line
+    return "\<C-o>d$"
   endif
-  if s:backwards
-    let s:killed = @z . s:killed
-  else
-    let s:killed = s:killed . @z
-  endif
-  let @z = s:saved_z
-  call setreg('"',s:killed,'c')
-  call setreg('1',s:killed,'c')
-  let s:kill_command = "k"
-  let s:saved_changedtick = b:changedtick
-  let s:saved_pos = <SID>GetPos()
 endfunction
 
-if version >= 700
-  function <SID>GetPos()
-    return getpos('.')
-  endfunction
-else
-  function <SID>GetPos()
-    return bufnr('') . ':' . line('.') . ':' . col('.') . ':' . virtcol('.')
-  endfunction
-endif
-
-let s:saved_changedtick = 0
-
-if version < 700
-  let s:saved_pos = ""
-endif
-
-if version >= 700
-  let s:kill_command = ""
-  let s:saved_pos = []
-
-  augroup VM_KillGroup
-    autocmd!
-    autocmd CursorMovedI * call <SID>CursorMovedI()
-    autocmd InsertEnter * call <SID>InsertEnter()
-    autocmd InsertLeave * call <SID>InsertLeave()
-  augroup END
-
-  function! <SID>CursorMovedI()
-    if s:kill_command == "ke"
-      let s:kill_command = "kem"
-    else
-      let s:kill_command = ""
-    endif
-  endfunction
-
-  function! <SID>InsertEnter()
-    if s:kill_command == "k"
-      let s:kill_command = "ke"
-    else
-      let s:kill_command = ""
-    endif
-  endfunction
-
-  function! <SID>InsertLeave()
-    if s:kill_command == "ke"
-      let s:kill_command = "kel"
-    elseif s:kill_command == "kem"
-      let s:kill_command = "keml"
-    else
-      let s:kill_command = ""
-    endif
-  endfunction
-endif
 
 "
 " Abbreviations
@@ -1055,46 +617,44 @@ vnoremap <C-x><C-Space> <Esc>
 vnoremap <C-g> <Esc>
 vnoremap <C-x><C-@> <Esc>
 vnoremap <M-w> "1y
-vnoremap <C-Ins> "+y
-vnoremap <S-Del> "+d
 "May have to change to "1d and paste ...
 
 " Marking blocks
-inoremap <silent> <M-Space> <C-o>:call <SID>StartMarkSel()<CR><C-o>viw
-inoremap <silent> <M-h> <C-o>:call <SID>StartMarkSel()<CR><C-o>vap
-inoremap <silent> <C-<> <C-o>:call <SID>StartMarkSel()<CR><C-o>v1G0o
-inoremap <silent> <C->> <C-o>:call <SID>StartMarkSel()<CR><C-o>vG$o
-inoremap <silent> <C-x>h <C-o>:call <SID>StartMarkSel()<CR><Esc>1G0vGo
+inoremap <M-Space> <C-o>:call <SID>StartMarkSel()<CR><C-o>viw
+inoremap <M-h> <C-o>:call <SID>StartMarkSel()<CR><C-o>vap
+inoremap <C-<> <C-o>:call <SID>StartMarkSel()<CR><C-o>v1G0o
+inoremap <C->> <C-o>:call <SID>StartMarkSel()<CR><C-o>vG$o
+inoremap <C-x>h <C-o>:call <SID>StartMarkSel()<CR><Esc>1G0vGo
 
 " Block operations
 vnoremap <C-w> "1d
 vnoremap <S-Del> "_d
 vnoremap <C-x><C-x> o
 vnoremap <C-x><C-u> U
-vnoremap <C-x><C-l> u
 vnoremap <M-x> :
 
 " Pasting
 inoremap <silent> <C-y> <C-o>:call <SID>ResetKillRing()<CR><C-r><C-o>"
 inoremap <S-Ins> <C-r><C-o>*
-inoremap <M-y> <C-r>=<SID>YankPop()<CR>
+"inoremap <M-y> <C-o>:echoerr "Sorry, yank-pop is not yet implemented!"<CR>
+inoremap <M-y> <C-o>:call <SID>YankPop()<CR>
 
 function! <SID>YankPop()
   undo
   if !exists("s:kill_ring_position")
     call <SID>ResetKillRing()
   endif
+  execute "normal! i\<C-r>\<C-o>" . s:kill_ring_position . "\<Esc>"
   call <SID>IncrKillRing()
-  return "\<C-r>\<C-o>" . s:kill_ring_position
 endfunction
 
 function! <SID>ResetKillRing()
-  let s:kill_ring_position = 1
+  let s:kill_ring_position = 3
 endfunction
 
 function! <SID>IncrKillRing()
   if s:kill_ring_position >= 9
-    let s:kill_ring_position = 1
+    let s:kill_ring_position = 2
   else
     let s:kill_ring_position = s:kill_ring_position + 1
   endif
@@ -1108,7 +668,7 @@ endfunction
 
 function! <SID>StartVisualMode()
   call <SID>StartMarkSel()
-  if col('.') >= col('$') && line('.') < line('$')
+  if col('.') > strlen(getline('.'))
     " At EOL
     return "\<Right>\<C-o>v\<Left>"
   else
@@ -1154,11 +714,11 @@ inoremap <C-x>2 <C-o><C-w>s
 inoremap <C-x>3 <C-o><C-w>v
 inoremap <C-x>0 <C-o><C-w>c
 inoremap <C-x>1 <C-o><C-w>o
-inoremap <silent> <C-x>o <Esc><C-w>w:if &insertmode \| startinsert \| endif \| redraw<CR>
+inoremap <C-x>o <C-o><C-w>w
 " <C-x>O is not defined in Emacs ...
 inoremap <C-x>O <C-o><C-w>W
-inoremap <silent> <C-Tab> <Esc><C-w>w:if &insertmode \| startinsert \| endif \| redraw<CR>
-inoremap <silent> <C-S-Tab> <Esc><C-w>W:if &insertmode \| startinsert \| endif \| redraw<CR>
+inoremap <C-Tab> <C-o><C-w>w
+inoremap <C-S-Tab> <C-o><C-w>W
 inoremap <C-x>+ <C-o><C-w>=
 inoremap <silent> <C-M-v> <C-o>:ScrollOtherWindow<CR>
 
@@ -1192,7 +752,6 @@ command! ScrollOtherWindow silent! execute "normal! \<C-w>w\<PageDown>\<C-w>W"
 " Formatting
 "
 
-inoremap <silent> <M-=> <C-o>:call <SID>IndentParagraph()<CR>
 inoremap <silent> <M-q> <C-o>:call <SID>FillParagraph()<CR>
 inoremap <script> <C-o> <CR><Left>
 inoremap <C-M-o> <C-o>:echoerr "<C-M-o> not supported yet; sorry!"<CR>
@@ -1210,17 +769,11 @@ function! <SID>FillParagraph()
   execute old_cursor_pos
 endfunction
 
-function! <SID>IndentParagraph()
-  let old_cursor_pos = <SID>Mark()
-  normal! =ip
-  execute old_cursor_pos
-endfunction
-
 function! <SID>DeleteBlankLines()
   if getline(".") == "" || getline(". + 1") == "" || getline(". - 1") == ""
     ?^.\+$?+1,/^.\+$/-2d"_"
   endif
-  normal! j
+  normal j
 endfunction
 
 
@@ -1256,13 +809,6 @@ function! <SID>BufExplorerOrBufferList()
     return "\<C-o>:buffer \<Tab>"
   endif
 endfunction
-
-"" Integration with a.vim (Alternate File) plugin
-if exists("*AlternateFile")
-  inoremap <C-x><C-a> <C-o>:A<CR>
-  inoremap <C-x>a <C-o>:A<CR>
-  inoremap <C-x>b <C-r>=<SID>BufExplorerOrBufferList()<CR>
-endif
 
 
 "
@@ -1354,25 +900,6 @@ vnoremap <C-x>r <C-v>
 "
 
 inoremap <C-l> <C-o>zz<C-o><C-l>
-
-
-"
-" Folding
-"
-
-" I've changed the folding prefix <C-x>@to <C-x><C-x>, because <C-x>@ sucks
-" <C-x><C-x><C-r> does the folding operation recursively
-inoremap <C-x><C-x><C-w> <C-o>zM
-inoremap <C-x><C-x><C-x> <C-o>zc
-inoremap <C-x><C-x><C-r><C-x> <C-o>zC
-inoremap <C-x><C-x><C-s> <C-o>zo
-inoremap <C-x><C-x><C-r><C-s> <C-o>zO
-inoremap <C-x><C-x>s <C-o>zR
-inoremap <C-x><C-x>1s <C-o>zr
-inoremap <C-x><C-x><C-q> <C-o>za
-inoremap <C-x><C-x><C-r><C-q> <C-o>zA
-inoremap <C-x><C-x>q <C-o>zM
-inoremap <C-x><C-x>1q <C-o>zm
 
 
 "
