@@ -121,7 +121,7 @@ endfun
 LetDefault g:VM_CmdHeightAdj 1
 
 if &cmdheight == 1 && &showmode == 1 && g:VM_CmdHeightAdj
-  set cmdheight=2
+  set cmdheight=12
 endif
 
 
