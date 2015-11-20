@@ -1,4 +1,4 @@
-						*vimacs-win32-quickstart*
+						*vimacs-win32-quickstart-INSTALL.txt*
 
 Firstly, you'll need Vim 6 installed.  Vimacs won't work on older
 versions.
