@@ -16,7 +16,7 @@
 ==============================================================================
 *Vimacs.01*  Introduction
 
-						/**vimacs**/
+                                                *vimacs*
 
 						*vimacs-introduction*
 
