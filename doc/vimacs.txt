@@ -779,6 +779,7 @@ See the |'vimacs-cedit'| topic in the option summary for details.
 
 						*vimacs-changelog*
 
+						*vimacs-0.94*
 						*vimacs-0.93*
 
 Made the thankyou (credits) list look a bit nicer :).
